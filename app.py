@@ -6,10 +6,12 @@ import dash_table
 import pandas as pd
 import pickle
 import numpy as np
+import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 
 app = dash.Dash(__name__)
 # app.config.suppress_callback_exceptions = True
+# nurwibowo
 
 df = pd.read_csv('data/indian_liver_patient_cleaned.csv')
 
@@ -19,7 +21,7 @@ df = pd.read_csv('data/indian_liver_patient_cleaned.csv')
 input_groups = dbc.FormGroup(
     [
         dbc.Label('Age'),
-        dbc.Input(placeholder='17', type='number', id='age', value=0),
+        dbc.Input(placeholder='17', type='number', min=0, id='age', value=0),
         
         dbc.Label('Gender'),
         dbc.Select(
@@ -30,33 +32,130 @@ input_groups = dbc.FormGroup(
         ),
 
         dbc.Label('Total Bilirubin'),
-        dbc.Input(placeholder='10.7', type='number', id='tbilirubin', value=0),
+        dbc.Input(placeholder='10.7', type='number', min=0, id='tbilirubin', value=0),
 
         dbc.Label('Direct Bilirubin'),
-        dbc.Input(placeholder='1.7', type='number', id='dbilirubin', value=0),
+        dbc.Input(placeholder='1.7', type='number', min=0, id='dbilirubin', value=0),
 
         dbc.Label('Alkaline Phosphotase'),
-        dbc.Input(placeholder='177', type='number', id='alka', value=0),
+        dbc.Input(placeholder='177', type='number', min=0, id='alka', value=0),
 
         dbc.Label('Alamine Aminotransferase'),
-        dbc.Input(placeholder='109', type='number', id='alam', value=0),
+        dbc.Input(placeholder='109', type='number', min=0, id='alam', value=0),
 
         dbc.Label('Aspartate Aminotransferase'),
-        dbc.Input(placeholder='18', type='number', id='aspar', value=0),
+        dbc.Input(placeholder='18', type='number', min=0, id='aspar', value=0),
 
         dbc.Label('Total Protiens'),
-        dbc.Input(placeholder='7.1', type='number', id='tprotein', value=0),
+        dbc.Input(placeholder='7.1', type='number', min=0, id='tprotein', value=0),
  
         dbc.Label('Albumin'),
-        dbc.Input(placeholder='2.6', type='number', id='albumin', value=0),
+        dbc.Input(placeholder='2.6', type='number', min=0, id='albumin', value=0),
  
         dbc.Label('Albumin and Globulin Ratio'),
-        dbc.Input(placeholder='0.9', type='number', id='agr', value=0),
+        dbc.Input(placeholder='0.9', type='number', min=0, id='agr', value=0),
 
         dbc.Button('Predict', color='success', className='mt-3', id='predict'),
     ]
 )
+# END FORM PREDIKSI
 
+# BAR PLOT
+df0 = df[df['Dataset']==0]
+
+df0 = df0.drop(columns=['Gender','Age','Dataset'], axis=1)
+cols0 = df0.columns
+mean0 = df0.mean(axis=0, skipna=True)
+
+
+df1 = df[df['Dataset']==1]
+
+df1 = df1.drop(columns=['Gender','Age','Dataset'], axis=1)
+cols1 = df1.columns
+mean1 = df1.mean(axis=0, skipna=True)
+
+people0 = []
+people1 = []
+
+for x,y in zip(cols0,mean0):
+    people0.append([x,y,'not diseased'])
+for x,y in zip(cols1,mean1):
+    people1.append([x,y,'diseased'])
+    
+df_chem0 = pd.DataFrame(people0,columns=['chemicals','mean','status'])
+df_chem1 = pd.DataFrame(people1,columns=['chemicals','mean','status'])
+
+bar_plot = dcc.Graph(figure=go.Figure(
+                        data=[
+                            go.Bar(
+                                x=df_chem0['chemicals'],
+                                y=df_chem0['mean'],
+                                name='Healthy',
+                                marker=go.bar.Marker(
+                                    color='rgb(55, 83, 109)'
+                                )
+                            ),
+                            go.Bar(
+                                x=df_chem1['chemicals'],
+                                y=df_chem1['mean'],
+                                name='Not Healthy',
+                                marker=go.bar.Marker(
+                                    color='rgb(26, 118, 255)'
+                                )
+                            ),
+                        ],
+                        layout=go.Layout(
+                                title='Amount Chemicals in Healthy and Non-Healthy People Body',
+                                showlegend=True,
+                                legend=go.layout.Legend(
+                                    x=0,
+                                    y=1.0
+                                ),
+                                margin=go.layout.Margin(l=40, r=0, t=40, b=30)
+                            )
+                        ),
+                        style={'height': 400, 'width': 600},
+                        id='my-graph'
+                    )
+# END BAR PLOT
+
+# HOW TO 
+how_to = dbc.ListGroup(
+    [
+        dbc.ListGroupItem(
+            [
+                dbc.ListGroupItemHeading('Imunisasi sejak dini'),
+                dbc.ListGroupItemText('Hepatitis, sebuah jenis peradangan hati, dapat dicegah dengan pemberian imunisasi sejak dini. Misalnya, imunisasi hepatitis B yang diberikan sejak bayi lahir dan dilakukan dalam beberapa tahap. Begitu pun vaksin hepatitis A yang berfungsi mencegah kita terjangkit penyakit tersebut. Bawa bayi dan anak Anda ke dokter atau sarana kesehatan setempat seperti Posyandu untuk mendapatkan vaksinasi secara teratur.'),
+            ]
+        ),
+        dbc.ListGroupItem(
+            [
+                dbc.ListGroupItemHeading('Minum air yang banyak'),
+                dbc.ListGroupItemText('Air adalah salah satu bagian penting yang berpengaruh di dalam fungsi tubuh kita. Air membantu menghilangkan racun dan melakukan proses penyerapan terhadap nutrisi penting. Meminum air dalam jumlah yang diperlukan juga dapat membantu menghilangkan efek samping selama pengobatan atau terapi. Tetapi perlu juga diperhatikan, apabila Anda sudah mengalami sirosis yaitu hati yang mengalami pengerutan, pengurangan cairan perlu dilakukan agar tubuh Anda mengandung terlalu banyak cairan.'),
+            ]
+        ),
+        dbc.ListGroupItem(
+            [
+                dbc.ListGroupItemHeading('Makan makanan bergizi'),
+                dbc.ListGroupItemText('Pengaturan makanan, baik secara jenis dan jumlah yang tepat, dapat membantu hati untuk mengatur lalu lintas metabolisme dengan baik. Selain itu, kita pun membantu meringankan kerja hati. Fatty liver atau perlemakan hati terjadi karena kita tidak mengatur jumlah lemak dan karbohidrat yang kita makan.'),
+            ]
+        ),
+        dbc.ListGroupItem(
+            [
+                dbc.ListGroupItemHeading('Hindari alkohol dan Rokok'),
+                dbc.ListGroupItemText('Alkohol dapat menyebabkan pengerutan hati atau sirosis. Dalam jangka panjang, alkohol juga dapat menyebabkan kanker hati. Oleh sebab itu, hindari konsumsi alkohol demi kesehatan hati kita. Merokok dapat mengganggu kemampuan hati untuk memetabolisme dan mengeluarkan berbagai jenis zat racun dari dalam tubuh. Selain itu, merokok juga dapat memperburuk kesehatan hati yang telah mengalami gangguan akibat konsumsi minuman beralkohol.'),
+            ]
+        ),
+        dbc.ListGroupItem(
+            [
+                dbc.ListGroupItemHeading('Hati-hati dalam mengonsumsi obat'),
+                dbc.ListGroupItemText('Hati berfungsi untuk mengubah zat obat menjadi aktif atau netral. Banyak obat yang dijual bebas, misalnya obat demam, obat batuk, dan suplemen tubuh dapat menjadi racun bagi hati bila dikonsumsi berlebihan dan tanpa aturan yang jelas. Bila kita tidak berhati-hati dalam memilih obat atau suplemen, hal tersebut akan memperberat kerja hati. Oleh sebab itu, selalu konsultasikan terlebih dahulu dengan dokter Anda, sebelum memulai terapi atau mengonsumsi suplemen tertentu.'),
+            ]
+        ),
+    ]
+)
+
+# END HOW TO
 
 # END
 
@@ -70,10 +169,11 @@ body = dbc.Container(
                         html.P(
                             '''\
                             Final project ini dikerjakan oleh Nur Wibowo. Pada final project ini
-                            menggunakan data Indian Liver Patient Records yang bersumber dari Kaggle
-                            (link: https://www.kaggle.com/uciml/indian-liver-patient-records).
+                            menggunakan data Indian Liver Patient Records yang bersumber dari Kaggle.
                             '''
                         ),
+                        html.A('Kaggle: Indian Liver Patient Records', href='https://www.kaggle.com/uciml/indian-liver-patient-records'),
+                        html.P('email: nurtriww@gmail.com - github: gitenx')
                     ],
                     md=4,
                 ),
@@ -86,42 +186,42 @@ body = dbc.Container(
                                         dbc.CardHeader(
                                             html.H2(
                                                 dbc.Button(
-                                                    'Menu 1',
+                                                    'Prediction',
                                                     color='link',
                                                     id='group-1-toggle',
                                                 )
                                             )
                                         ),
                                         dbc.Collapse(
-                                            dbc.CardBody(),
+                                            dbc.CardBody(input_groups),
                                             id='collapse-1',
                                         ),
 
                                         dbc.CardHeader(
                                             html.H2(
                                                 dbc.Button(
-                                                    'Menu 2',
+                                                    'Amount Chemicals in Healthy and Non-Healthy People Body',
                                                     color='link',
                                                     id='group-2-toggle',
                                                 )
                                             )
                                         ),
                                         dbc.Collapse(
-                                            dbc.CardBody('This is the content of group...'),
+                                            dbc.CardBody(bar_plot),
                                             id='collapse-2',
                                         ),
 
                                         dbc.CardHeader(
                                             html.H2(
                                                 dbc.Button(
-                                                    'Prediction',
+                                                    'How to Keep Your Liver Healthy / Cara Menjaga Kesehatan Hati',
                                                     color='link',
                                                     id='group-3-toggle',
                                                 )
                                             )
                                         ),
                                         dbc.Collapse(
-                                            dbc.CardBody(input_groups),
+                                            dbc.CardBody([how_to, html.A('Sumber', href='https://hellosehat.com/hidup-sehat/tips-sehat/5-cara-menjaga-kesehatan-hati/')]),
                                             id='collapse-3',
                                         ),
                                     ]
@@ -224,20 +324,22 @@ def predict_liver(n_clicks,age,gender,tbilirubin,dbilirubin,alka,alam,aspar,tpro
 
     pred_model = pickle.load(open('model_ilp', 'rb'))
 
-    if age == '0' or gender == '' or tbilirubin == '0' or dbilirubin == '0' or alka == '0' or alam == '0' or aspar == '0' or tprotein == '0' or albumin == '0' or agr == '0':
-        children = 'Please check the value you input'
+    if age == 0 or tbilirubin == 0 or dbilirubin == 0 or alka == 0 or alam == 0 or aspar == 0 or tprotein == 0 or albumin == 0 or agr == 0 or age == '' or tbilirubin == '' or dbilirubin == '' or alka == '' or alam == '' or aspar == '' or tprotein == '' or albumin == '' or agr == '':
+        children = dbc.Alert('You can\'t submit null or zero value!', color='danger')
     else:
-        predict_result = pred_model.predict_proba([[float(age),float(gender),float(tbilirubin),float(dbilirubin),float(alka),float(alam),float(aspar),float(tprotein),float(albumin),float(agr)]])[0][1]
+        nodisease = pred_model.predict_proba([[float(age),float(gender),float(tbilirubin),float(dbilirubin),float(alka),float(alam),float(aspar),float(tprotein),float(albumin),float(agr)]])[0][0]
+        disease = pred_model.predict_proba([[float(age),float(gender),float(tbilirubin),float(dbilirubin),float(alka),float(alam),float(aspar),float(tprotein),float(albumin),float(agr)]])[0][1]
         pds = pred_model.predict([[float(age),float(gender),float(tbilirubin),float(dbilirubin),float(alka),float(alam),float(aspar),float(tprotein),float(albumin),float(agr)]])
 
         if pds == 1:
-            children = 'Sorry, the patient probably has liver disease with probability: {:0.2f}'.format(predict_result)
+            children = dbc.Alert('The patient probably has liver disease with probability: {:0.2f}'.format(disease), color='danger')
         else:
-            children = 'Well, the patient has not liver disease with probability: {:0.2f}'.format(predict_result)
+            children = dbc.Alert('The patient probably has no liver disease with probability: {:0.2f}'.format(nodisease), color='success')
     
     return children
 
 
+
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
 
