@@ -341,5 +341,6 @@ def predict_liver(n_clicks,age,gender,tbilirubin,dbilirubin,alka,alam,aspar,tpro
 
 
 if __name__ == '__main__':
+    app.title = 'Final Project: Liver Detection'
     app.run_server(debug=False)
 
