@@ -327,14 +327,16 @@ def predict_liver(n_clicks,age,gender,tbilirubin,dbilirubin,alka,alam,aspar,tpro
     if age == 0 or tbilirubin == 0 or dbilirubin == 0 or alka == 0 or alam == 0 or aspar == 0 or tprotein == 0 or albumin == 0 or agr == 0 or age == '' or tbilirubin == '' or dbilirubin == '' or alka == '' or alam == '' or aspar == '' or tprotein == '' or albumin == '' or agr == '':
         children = dbc.Alert('You can\'t submit null or zero value!', color='danger')
     else:
-        nodisease = pred_model.predict_proba([[float(age),float(gender),float(tbilirubin),float(dbilirubin),float(alka),float(alam),float(aspar),float(tprotein),float(albumin),float(agr)]])[0][0]
-        disease = pred_model.predict_proba([[float(age),float(gender),float(tbilirubin),float(dbilirubin),float(alka),float(alam),float(aspar),float(tprotein),float(albumin),float(agr)]])[0][1]
+        # nodisease = pred_model.predict_proba([[float(age),float(gender),float(tbilirubin),float(dbilirubin),float(alka),float(alam),float(aspar),float(tprotein),float(albumin),float(agr)]])[0][0]
+        # disease = pred_model.predict_proba([[float(age),float(gender),float(tbilirubin),float(dbilirubin),float(alka),float(alam),float(aspar),float(tprotein),float(albumin),float(agr)]])[0][1]
         pds = pred_model.predict([[float(age),float(gender),float(tbilirubin),float(dbilirubin),float(alka),float(alam),float(aspar),float(tprotein),float(albumin),float(agr)]])
 
         if pds == 1:
-            children = dbc.Alert('The patient probably has liver disease with probability: {:0.2f}'.format(disease), color='danger')
+            # children = dbc.Alert('The patient probably has liver disease with probability: {:0.2f}'.format(disease), color='danger')
+            children = dbc.Alert('The patient probably has liver disease', color='danger')
         else:
-            children = dbc.Alert('The patient probably has no liver disease with probability: {:0.2f}'.format(nodisease), color='success')
+            # children = dbc.Alert('The patient probably has no liver disease with probability: {:0.2f}'.format(nodisease), color='success')
+            children = dbc.Alert('The patient probably has no liver disease', color='success')
     
     return children
 
