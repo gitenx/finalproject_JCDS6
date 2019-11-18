@@ -333,10 +333,10 @@ def predict_liver(n_clicks,age,gender,tbilirubin,dbilirubin,alka,alam,aspar,tpro
 
         if pds == 1:
             # children = dbc.Alert('The patient probably has liver disease with probability: {:0.2f}'.format(disease), color='danger')
-            children = dbc.Alert('The patient probably has liver disease', color='danger')
+            children = dbc.Alert('The patient has liver disease', color='danger')
         else:
             # children = dbc.Alert('The patient probably has no liver disease with probability: {:0.2f}'.format(nodisease), color='success')
-            children = dbc.Alert('The patient probably has no liver disease', color='success')
+            children = dbc.Alert('The patient doesn\'t have liver disease', color='success')
     
     return children
 
